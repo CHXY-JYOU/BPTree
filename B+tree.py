@@ -1,4 +1,20 @@
 #!/usr/bin/env python
+# -*- coding:UTF-8 -*-
+#B+树实现
+#实现过程和btree很像，不过有几点显著不同。
+#1.内节点不存储key-value，只存放key
+#
+#2.沿着内节点搜索的时候，查到索引相等的数要向树的右边走。所以二分查找要选择
+#bisect_right
+#
+#3.在叶子节点满的时候，并不是先分裂再插入而是先插入再分裂。因为b+tree无法保证
+#分裂的两个节点的大小都是相等的。在奇数大小的数据分裂的时候右边的子节点会比左
+#边的大。如果先分裂再插入无法保证插入的节点一定会插在数量更少的子节点上，满足
+#节点数量平衡的条件。
+#
+#4.在删除数据的时候，b+tree的左右子节点借数据的方式比btree更加简单有效，只把子
+#节点的子树直接剪切过来，再把索引变一下就行了，而且叶子节点的兄弟指针也不用动。
+
 from random import randint, choice
 from bisect import bisect_right, bisect_left
 from collections import deque
@@ -11,12 +27,12 @@ class InitError(Exception):
 class ParaError(Exception):
     pass
 
-
+#生成键值对
 class KeyValue(object):
     __slots__ = ('key', 'value')
 
     def __init__(self, key, value):
-        self.key = key
+        self.key = key  #定要保证键值是整型self.key=int(key)
         self.value = value
 
     def __str__(self):
@@ -34,13 +50,13 @@ class KeyValue(object):
 class Bptree_InterNode(object):
     def __init__(self, M):
         if not isinstance(M, int):
-            raise InitError, 'M must be int'
+             raise InitError, 'M must be int'
         if M <= 3:
             raise InitError, 'M must be greater then 3'
         else:
             self.__M = M
-            self.clist = []
-            self.ilist = []
+            self.clist = []#存放区间
+            self.ilist = []#存放索引/序号
             self.par = None
 
     def isleaf(self):
@@ -64,8 +80,8 @@ class Bptree_Leaf(object):
         else:
             self.__L = L
             self.vlist = []
-            self.bro = None
-            self.par = None
+            self.bro = None#兄弟结点
+            self.par = None #父结点
 
     def isleaf(self):
         return True
@@ -99,11 +115,12 @@ class Bptree(object):
     def L(self):
         return self.__L
 
+    # 插入
     def insert(self, key_value):
         node = self.__root
 
         def split_node(n1):
-            mid = self.M / 2
+            mid = self.M / 2  #此处注意，可能出错
             newnode = Bptree_InterNode(self.M)
             newnode.ilist = n1.ilist[mid:]
             newnode.clist = n1.clist[mid:]
@@ -159,6 +176,7 @@ class Bptree(object):
 
         insert_node(node)
 
+    # 搜索
     def search(self, mi=None, ma=None):
         result = []
         node = self.__root
@@ -256,6 +274,7 @@ class Bptree(object):
                 else:
                     print [v.key for v in w.vlist], 'the leaf is,', hei
 
+    # 删除
     def delete(self, key_value):
         def merge(n, i):
             if n.clist[i].isleaf():
@@ -336,10 +355,11 @@ class Bptree(object):
 
 
 def test():
-    mini = 2
-    maxi = 60
+    # 初始化数据源
+    mini = 20
+    maxi = 200
     testlist = []
-    for i in range(1, 10):
+    for i in range(20):
         key = i
         value = i
         testlist.append(KeyValue(key, value))
