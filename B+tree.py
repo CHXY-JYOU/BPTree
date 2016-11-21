@@ -359,18 +359,29 @@ def test():
     mini = 20
     maxi = 200
     testlist = []
-    for i in range(20):
+    for i in range(220):
         key = i
         value = i
         testlist.append(KeyValue(key, value))
+    # 初始化B树
     mybptree = Bptree(4, 4)
+    # 插入操作
     for kv in testlist:
         mybptree.insert(kv)
+   # mybptree.delete(testlist[0])
+    #mybptree.show()
+    # 查找操作
+   # print('\nnow we are searching item between %d and %d\n==>' % (mini, maxi))
+   # print([v.key for v in mybptree.search(mini, maxi)])
+
+    # 删除操作
     mybptree.delete(testlist[0])
+   # print('\n删除 {0}后， the newtree is:\n'.format(testlist[0]));
     mybptree.show()
-    print '\nkey of this b+tree is \n'
-    print [kv.key for kv in mybptree.traversal()]
-    # print [kv.key for kv in mybptree.search(mini,maxi)]
+
+    # 深度遍历操作
+    print('\nkey of this b+tree is \n')
+    print([kv.key for kv in mybptree.traversal()])
 
 
 if __name__ == '__main__':
